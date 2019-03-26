@@ -9,17 +9,15 @@ function eventAdd() {
   var location = document.getElementById("location").value;
   var title = document.getElementById("title").value;
   var detail = document.getElementById("detail").value;
-  var tz = document.getElementById("ctz");
-  var ctz = tz.options[tz.selectedIndex].value;
-  var yahooString = "http://calendar.yahoo.com/?v=60&".concat(createYahooString(startDate, endDate, allDay, startTime, endTime, location, title, detail, ctz));
-  var googleString = "https://calendar.google.com/calendar/render?action=TEMPLATE&".concat(createGoogleString(startDate, endDate, allDay, startTime, endTime, location, title, detail, ctz));
-  var iCalendarString = baseURL.concat("?action=DOWNLOAD&", createiCalendarString(startDate, endDate, allDay, startTime, endTime, location, title, detail, ctz));
+  var yahooString = "http://calendar.yahoo.com/?v=60&".concat(createYahooString(startDate, endDate, allDay, startTime, endTime, location, title, detail));
+  var googleString = "https://calendar.google.com/calendar/render?action=TEMPLATE&".concat(createGoogleString(startDate, endDate, allDay, startTime, endTime, location, title, detail));
+  var iCalendarString = baseURL.concat("?action=DOWNLOAD&", createiCalendarString(startDate, endDate, allDay, startTime, endTime, location, title, detail));
   document.getElementById("yahoo").value = encodeURI(yahooString);
   document.getElementById("google").value = encodeURI(googleString);
   document.getElementById("ical").value = encodeURI(iCalendarString);
 }
 
-function createGoogleString(startDate, endDate, allDay, startTime, endTime, location, title, detail, ctz) {
+function createGoogleString(startDate, endDate, allDay, startTime, endTime, location, title, detail) {
   formatted = formattedDates(startDate, endDate, allDay, startTime, endTime);
   return "".concat("text=",
     title,
@@ -29,14 +27,12 @@ function createGoogleString(startDate, endDate, allDay, startTime, endTime, loca
     formatted[1],
     "&location=",
     location,
-    "&ctz=",
-    ctz,
     "&details=",
     detail
   );
 }
 
-function createYahooString(startDate, endDate, allDay, startTime, endTime, location, title, detail, ctz) {
+function createYahooString(startDate, endDate, allDay, startTime, endTime, location, title, detail) {
   formatted = formattedDates(startDate, endDate, allDay, startTime, endTime);
   var duration = "";
   var dateTime = "&ST=" + formatted[0];
@@ -62,7 +58,7 @@ function createYahooString(startDate, endDate, allDay, startTime, endTime, locat
   );
 }
 
-function createiCalendarString(startDate, endDate, allDay, startTime, endTime, location, title, detail, ctz) {
+function createiCalendarString(startDate, endDate, allDay, startTime, endTime, location, title, detail) {
   formatted = formattedDates(startDate, endDate, allDay, startTime, endTime);
   return "".concat("startDate=",
     formatted[0],
@@ -75,9 +71,7 @@ function createiCalendarString(startDate, endDate, allDay, startTime, endTime, l
     "&title=",
     title,
     "&detail=",
-    detail,
-    "&ctz=",
-    ctz
+    detail
   );
 }
 
@@ -154,7 +148,6 @@ function downloadICal() {
   var location = url.searchParams.get("location");
   var title = url.searchParams.get("title");
   var detail = url.searchParams.get("detail");
-  var ctz = url.searchParams.get("ctz");
   text = text.concat(
     "DTSTART:",
     startDate,
