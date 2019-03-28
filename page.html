@@ -1,7 +1,6 @@
 <!doctype html>
 <html lang="en">
   <head>
-    <script type="text/javascript" src="event-add.js"></script>
     <!-- Latest compiled and minified CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
 
@@ -12,60 +11,8 @@
   </head>
   <body>
     <div class="container">
-      <div class="row">
-        <h1>eventAdd</h1>
-      </div>
-      <div class="row">
-        <label for="title" class="col-md-2">Title</label>
-        <input type="text" name="title" id="title" value="">
-      </div>
-      <div class="row">
-        <label for="start-date" class="col-md-2">Start Date</label>
-        <input type="date" name="start-date" id="start-date" value="">
-      </div>
-      <div class="row">
-        <label for="end-date" class="col-md-2">End Date</label>
-        <input type="date" name="end-date" id="end-date" value="">
-      </div>
-      <div class="row">
-        <label for="all-day" class="col-md-2">All Day</label>
-        <input type="checkbox" name="all-day" id="all-day" onchange="hideTime()" value="">
-      </div>
-      <div id="time-input">
-        <div class="row">
-          <label for="start-time" class="col-md-2">Start Time</label>
-          <input type="time" name="start-time" id="start-time" value="">
-        </div>
-        <div class="row">
-          <label for="end-time" class="col-md-2">End Time</label>
-          <input type="time" name="end-time" id="end-time" value="">
-        </div>
-      </div>
-      <div class="row">
-        <label for="location" class="col-md-2">Location</label>
-        <input type="text" name="location" id="location" value="">
-      </div>
-      <div class="row">
-        <label for="detail" class="col-md-2">Details</label>
-        <input type="text" name="detail" id="detail" value="">
-      </div>
-
-      <div class="row">
-        <button type="button" onclick='eventAdd()'>Create URLs</button>
-      </div>
-
-      <div class="row">
-        <label for="yahoo" class="col-md-1">Yahoo!</label>
-        <input type="text" class="col-md-11" name="yahoo" id="yahoo" value="" readonly>
-      </div>
-      <div class="row">
-        <label for="google" class="col-md-1">Google</label>
-        <input type="text" class="col-md-11" name="google" id="google" value="" readonly>
-      </div>
-      <div class="row">
-        <label for="ical" class="col-md-1">iCalendar</label>
-        <input type="text" class="col-md-11" name="ical" id="ical" value="" readonly><br>
-      </div>
+      <app id="eventAdd"></app>
     </div>
+    <script type="text/javascript" src="event-add.js"></script>
   </body>
 </html>

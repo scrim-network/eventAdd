@@ -1,20 +1,93 @@
 var baseURL = "file:///Users/rsm5139/Git/eventAdd/page.html";
 
-function eventAdd() {
-  var startDate = document.getElementById("start-date").value;
-  var endDate = document.getElementById("end-date").value;
-  var allDay = document.getElementById("all-day").checked;
-  var startTime = document.getElementById("start-time").value;
-  var endTime = document.getElementById("end-time").value;
-  var location = document.getElementById("location").value;
-  var title = document.getElementById("title").value;
-  var detail = document.getElementById("detail").value;
-  var yahooString = "http://calendar.yahoo.com/?v=60&".concat(createYahooString(startDate, endDate, allDay, startTime, endTime, location, title, detail));
-  var googleString = "https://calendar.google.com/calendar/render?action=TEMPLATE&".concat(createGoogleString(startDate, endDate, allDay, startTime, endTime, location, title, detail));
-  var iCalendarString = baseURL.concat("?action=DOWNLOAD&", createiCalendarString(startDate, endDate, allDay, startTime, endTime, location, title, detail));
-  document.getElementById("yahoo").value = encodeURI(yahooString);
-  document.getElementById("google").value = encodeURI(googleString);
-  document.getElementById("ical").value = encodeURI(iCalendarString);
+var test_string = `{"events":[
+  { "title":"New Year Party",
+    "location":"Penn State",
+    "start_date":"2019-12-31",
+    "end_date":"2020-01-01",
+    "start_time":"23:00",
+    "end_time":"01:00",
+    "all_day":false,
+    "details":"Come join us for this epic party!"},
+  { "title":"New Year Hangover",
+    "location":"Everywhere",
+    "start_date":"2020-01-01",
+    "end_date":"2020-01-01",
+    "all_day":true,
+    "details":"Nurse your hangover and try to get through the workday."}
+]}`;
+
+function dateString(date, time) {
+  if (time) {
+    return "".concat(date, "T", time, ":00");
+  } else {
+    return "".concat(date, "T00:00:00");
+  }
+}
+
+function formattedDates(startDate, endDate, allDay, startTime, endTime) {
+  if (allDay) {
+    var ds = dateString(startDate, startTime);
+    var d = new Date(ds);
+    var dt = twoDigits(d.getDate());
+    var mn = twoDigits(d.getMonth() + 1);
+    var yr = d.getFullYear();
+    var formattedStart = "".concat(yr, mn, dt);
+    ds = dateString(endDate, endTime);
+    d = new Date(ds);
+    d.setDate(d.getDate() + 1);
+    dt = twoDigits(d.getDate());
+    mn = twoDigits(d.getMonth() + 1);
+    yr = d.getFullYear();
+    var formattedEnd = "".concat(yr, mn, dt);
+  } else {
+    var ds = dateString(startDate, startTime);
+    var d = new Date(ds);
+    var dt = twoDigits(d.getUTCDate());
+    var mn = twoDigits(d.getUTCMonth() + 1);
+    var yr = d.getUTCFullYear();
+    var hr = twoDigits(d.getUTCHours());
+    var mt = twoDigits(d.getUTCMinutes());
+    var sc = twoDigits(d.getUTCSeconds());
+    var formattedStart = "".concat(yr, mn, dt, "T", hr, mt, sc, "Z");
+    ds = dateString(endDate, endTime);
+    d = new Date(ds);
+    dt = twoDigits(d.getUTCDate());
+    mn = twoDigits(d.getUTCMonth() + 1);
+    yr = d.getUTCFullYear();
+    hr = twoDigits(d.getUTCHours());
+    mt = twoDigits(d.getUTCMinutes());
+    sc = twoDigits(d.getUTCSeconds());
+    var formattedEnd = "".concat(yr, mn, dt, "T", hr, mt, sc, "Z");
+  }
+  return [formattedStart, formattedEnd];
+}
+
+function twoDigits(num) {
+  var nums = ["00", "01", "02", "03", "04", "05", "06", "07", "08", "09"];
+  if (num < 10) {
+    return nums[num];
+  } else {
+    return num;
+  }
+}
+
+function tryParseJSON (jsonString) {
+    try {
+        var o = JSON.parse(jsonString);
+
+        // Handle non-exception-throwing cases:
+        // Neither JSON.parse(false) or JSON.parse(1234) throw errors, hence the type-checking,
+        // but... JSON.parse(null) returns null, and typeof null === "object",
+        // so we must check for that, too. Thankfully, null is falsey, so this suffices:
+        // https://stackoverflow.com/questions/3710204/how-to-check-if-a-string-is-a-valid-json-string-in-javascript-without-using-try
+        if (o && typeof o === "object") {
+            return o;
+        }
+    }
+    catch (e) { }
+
+    return false;
 }
 
 function createGoogleString(startDate, endDate, allDay, startTime, endTime, location, title, detail) {
@@ -75,68 +148,76 @@ function createiCalendarString(startDate, endDate, allDay, startTime, endTime, l
   );
 }
 
-function dateString(date, time) {
-  if (time) {
-    return "".concat(date, "T", time, ":00");
+function generateOutput () {
+  var json_obj = tryParseJSON(test_string);
+  document.getElementById("formatted-output").innerHTML = "";
+  var i = 0;
+  if (json_obj) {
+    json_obj.events.forEach(function(event) {
+      i += 1;
+      var event_element = document.createElement("div");
+      var title_element = document.createElement("h2");
+      var location_element = document.createElement("p");
+      var details_element = document.createElement("p");
+      var time_element = document.createElement("p");
+      var links_element = document.createElement("ul");
+      var yahooString = "http://calendar.yahoo.com/?v=60&".concat(createYahooString(event.start_date, event.end_date, event.all_day, event.start_time, event.end_time, event.location, event.title, event.details));
+      var googleString = "https://calendar.google.com/calendar/render?action=TEMPLATE&".concat(createGoogleString(event.start_date, event.end_date, event.all_day, event.start_time, event.end_time, event.location, event.title, event.details));
+      var iCalendarString = baseURL.concat("?action=DOWNLOAD&", createiCalendarString(event.start_date, event.end_date, event.all_day, event.start_time, event.end_time, event.location, event.title, event.details));
+      event_element.setAttribute("id", "event"+i);
+      var t = document.createTextNode(event.title);
+      title_element.appendChild(t);
+      t = document.createTextNode(event.location);
+      location_element.appendChild(t);
+      t = document.createTextNode(event.details);
+      details_element.appendChild(t);
+      t = document.createTextNode(dateString(event.start_date, event.start_time)+" to "+dateString(event.end_date, event.end_time));
+      time_element.appendChild(t);
+      var le = document.createElement("li");
+      var a = document.createElement("a");
+      a.setAttribute("href", encodeURI(googleString));
+      t = document.createTextNode("Google");
+      a.appendChild(t);
+      le.appendChild(a);
+      links_element.appendChild(le);
+      le = document.createElement("li");
+      a = document.createElement("a");
+      a.setAttribute("href", encodeURI(yahooString));
+      t = document.createTextNode("Yahoo");
+      a.appendChild(t);
+      le.appendChild(a);
+      links_element.appendChild(le);
+      le = document.createElement("li");
+      a = document.createElement("a");
+      a.setAttribute("href", encodeURI(iCalendarString));
+      t = document.createTextNode("iCal");
+      a.appendChild(t);
+      le.appendChild(a);
+      links_element.appendChild(le);
+      event_element.appendChild(title_element);
+      event_element.appendChild(location_element);
+      event_element.appendChild(details_element);
+      event_element.appendChild(time_element);
+      event_element.appendChild(links_element);
+      document.getElementById("formatted-output").appendChild(event_element);
+    });
   } else {
-    return "".concat(date, "T00:00:00");
+    document.getElementById("formatted-output").innerHTML = "Invalid JSON. Please correct errors and try again";
+    document.getElementById("formatted-output").style.color = 'red';
   }
 }
 
-function formattedDates(startDate, endDate, allDay, startTime, endTime) {
-  if (allDay) {
-    var ds = dateString(startDate, startTime);
-    var d = new Date(ds);
-    var dt = twoDigits(d.getDate());
-    var mn = twoDigits(d.getMonth() + 1);
-    var yr = d.getFullYear();
-    var formattedStart = "".concat(yr, mn, dt);
-    ds = dateString(endDate, endTime);
-    d = new Date(ds);
-    d.setDate(d.getDate() + 1);
-    dt = twoDigits(d.getDate());
-    mn = twoDigits(d.getMonth() + 1);
-    yr = d.getFullYear();
-    var formattedEnd = "".concat(yr, mn, dt);
-  } else {
-    var ds = dateString(startDate, startTime);
-    var d = new Date(ds);
-    var dt = twoDigits(d.getUTCDate());
-    var mn = twoDigits(d.getUTCMonth() + 1);
-    var yr = d.getUTCFullYear();
-    var hr = twoDigits(d.getUTCHours());
-    var mt = twoDigits(d.getUTCMinutes());
-    var sc = twoDigits(d.getUTCSeconds());
-    var formattedStart = "".concat(yr, mn, dt, "T", hr, mt, sc, "Z");
-    ds = dateString(endDate, endTime);
-    d = new Date(ds);
-    dt = twoDigits(d.getUTCDate());
-    mn = twoDigits(d.getUTCMonth() + 1);
-    yr = d.getUTCFullYear();
-    hr = twoDigits(d.getUTCHours());
-    mt = twoDigits(d.getUTCMinutes());
-    sc = twoDigits(d.getUTCSeconds());
-    var formattedEnd = "".concat(yr, mn, dt, "T", hr, mt, sc, "Z");
-  }
-  return [formattedStart, formattedEnd];
+function initializeApp () {
+  var formatted_output = document.createElement("div");
+  formatted_output.setAttribute("id", "formatted-output");
+  document.getElementById("eventAdd").appendChild(formatted_output);
+  var generate_button = document.createElement("button");
+  generate_button.innerHTML = "GENERATE";
+  generate_button.addEventListener("click", generateOutput);
+  document.getElementById("eventAdd").appendChild(generate_button);
 }
 
-function twoDigits(num) {
-  var nums = ["00", "01", "02", "03", "04", "05", "06", "07", "08", "09"];
-  if (num < 10) {
-    return nums[num];
-  } else {
-    return num;
-  }
-}
-
-function hideTime() {
-  if (document.getElementById("time-input").style.display == "none") {
-    document.getElementById("time-input").style.display = "block";
-  } else {
-    document.getElementById("time-input").style.display = "none";
-  }
-}
+initializeApp();
 
 function downloadICal() {
   var filename = "event.ics";
