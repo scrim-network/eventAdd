@@ -1,7 +1,8 @@
 var baseURL = "file:///Users/rsm5139/Git/eventAdd/page.html";
 
-var test_string = `{"events":[
-  { "title":"New Year Party",
+var test_string = `{
+  "events":[
+  { "title":"New Years Party",
     "location":"Penn State",
     "start_date":"2019-12-31",
     "end_date":"2020-01-01",
@@ -9,13 +10,19 @@ var test_string = `{"events":[
     "end_time":"01:00",
     "all_day":false,
     "details":"Come join us for this epic party!"},
-  { "title":"New Year Hangover",
+  { "title":"New Years Hangover",
     "location":"Everywhere",
     "start_date":"2020-01-01",
     "end_date":"2020-01-01",
     "all_day":true,
     "details":"Nurse your hangover and try to get through the workday."}
 ]}`;
+
+var default_css = `h2 {
+  color:inherit;
+}`;
+
+var default_string = test_string;
 
 function dateString(date, time) {
   if (time) {
@@ -26,30 +33,36 @@ function dateString(date, time) {
 }
 
 function formattedDates(startDate, endDate, allDay, startTime, endTime) {
+  var ds = dateString(startDate, startTime);
+  var d = new Date(ds);
+  var dt = null;
+  var mn = null;
+  var yr = null;
+  var hr = null;
+  var mt = null;
+  var sc = null;
+  var formattedStart = null;
+  var formattedEnd = null;
   if (allDay) {
-    var ds = dateString(startDate, startTime);
-    var d = new Date(ds);
-    var dt = twoDigits(d.getDate());
-    var mn = twoDigits(d.getMonth() + 1);
-    var yr = d.getFullYear();
-    var formattedStart = "".concat(yr, mn, dt);
+    dt = twoDigits(d.getDate());
+    mn = twoDigits(d.getMonth() + 1);
+    yr = d.getFullYear();
+    formattedStart = "".concat(yr, mn, dt);
     ds = dateString(endDate, endTime);
     d = new Date(ds);
     d.setDate(d.getDate() + 1);
     dt = twoDigits(d.getDate());
     mn = twoDigits(d.getMonth() + 1);
     yr = d.getFullYear();
-    var formattedEnd = "".concat(yr, mn, dt);
+    formattedEnd = "".concat(yr, mn, dt);
   } else {
-    var ds = dateString(startDate, startTime);
-    var d = new Date(ds);
-    var dt = twoDigits(d.getUTCDate());
-    var mn = twoDigits(d.getUTCMonth() + 1);
-    var yr = d.getUTCFullYear();
-    var hr = twoDigits(d.getUTCHours());
-    var mt = twoDigits(d.getUTCMinutes());
-    var sc = twoDigits(d.getUTCSeconds());
-    var formattedStart = "".concat(yr, mn, dt, "T", hr, mt, sc, "Z");
+    dt = twoDigits(d.getUTCDate());
+    mn = twoDigits(d.getUTCMonth() + 1);
+    yr = d.getUTCFullYear();
+    hr = twoDigits(d.getUTCHours());
+    mt = twoDigits(d.getUTCMinutes());
+    sc = twoDigits(d.getUTCSeconds());
+    formattedStart = "".concat(yr, mn, dt, "T", hr, mt, sc, "Z");
     ds = dateString(endDate, endTime);
     d = new Date(ds);
     dt = twoDigits(d.getUTCDate());
@@ -58,7 +71,7 @@ function formattedDates(startDate, endDate, allDay, startTime, endTime) {
     hr = twoDigits(d.getUTCHours());
     mt = twoDigits(d.getUTCMinutes());
     sc = twoDigits(d.getUTCSeconds());
-    var formattedEnd = "".concat(yr, mn, dt, "T", hr, mt, sc, "Z");
+    formattedEnd = "".concat(yr, mn, dt, "T", hr, mt, sc, "Z");
   }
   return [formattedStart, formattedEnd];
 }
@@ -119,7 +132,7 @@ function createYahooString(startDate, endDate, allDay, startTime, endTime, locat
     duration = hrs + mins;
     dateTime = dateTime.concat("&DUR=", duration);
   } else {
-    var dateTime = dateTime.concat("&ET=", formatted[1]);
+    dateTime = dateTime.concat("&ET=", formatted[1]);
   }
   return "".concat("TITLE=",
     title,
@@ -149,8 +162,10 @@ function createiCalendarString(startDate, endDate, allDay, startTime, endTime, l
 }
 
 function generateOutput () {
-  var json_obj = tryParseJSON(test_string);
-  document.getElementById("formatted-output").innerHTML = "";
+  var json_obj = tryParseJSON(document.getElementById("json-input").value);
+  var current_css = document.getElementById("css-input").value;
+  var rendered = document.createElement("div");
+  rendered.id = "formatted";
   var i = 0;
   if (json_obj) {
     json_obj.events.forEach(function(event) {
@@ -161,10 +176,11 @@ function generateOutput () {
       var details_element = document.createElement("p");
       var time_element = document.createElement("p");
       var links_element = document.createElement("ul");
-      var yahooString = "http://calendar.yahoo.com/?v=60&".concat(createYahooString(event.start_date, event.end_date, event.all_day, event.start_time, event.end_time, event.location, event.title, event.details));
-      var googleString = "https://calendar.google.com/calendar/render?action=TEMPLATE&".concat(createGoogleString(event.start_date, event.end_date, event.all_day, event.start_time, event.end_time, event.location, event.title, event.details));
-      var iCalendarString = baseURL.concat("?action=DOWNLOAD&", createiCalendarString(event.start_date, event.end_date, event.all_day, event.start_time, event.end_time, event.location, event.title, event.details));
-      event_element.setAttribute("id", "event"+i);
+      var arguments = [event.start_date, event.end_date, event.all_day, event.start_time, event.end_time, event.location, event.title, event.details];
+      var yahooString = "http://calendar.yahoo.com/?v=60&".concat(createYahooString.apply(this, arguments));
+      var googleString = "https://calendar.google.com/calendar/render?action=TEMPLATE&".concat(createGoogleString.apply(this, arguments));
+      var iCalendarString = baseURL.concat("?action=DOWNLOAD&", createiCalendarString.apply(this, arguments));
+      event_element.id = "event"+i;
       var t = document.createTextNode(event.title);
       title_element.appendChild(t);
       t = document.createTextNode(event.location);
@@ -199,21 +215,47 @@ function generateOutput () {
       event_element.appendChild(details_element);
       event_element.appendChild(time_element);
       event_element.appendChild(links_element);
-      document.getElementById("formatted-output").appendChild(event_element);
+      rendered.appendChild(event_element);
     });
+    var style_element = document.createElement("style");
+    t = document.createTextNode(current_css);
+    style_element.appendChild(t);
+    rendered.appendChild(style_element);
+    rendered = divMeUp(rendered);
+    document.getElementById("formatted-output").src = 'data:text/html;charset=utf-8,' + encodeURI(rendered.innerHTML);
   } else {
-    document.getElementById("formatted-output").innerHTML = "Invalid JSON. Please correct errors and try again";
-    document.getElementById("formatted-output").style.color = 'red';
+    alert("Invalid JSON. Please correct errors and try again");
   }
 }
 
+function divMeUp (inner_element) {
+  var div_element = document.createElement("div");
+  div_element.appendChild(inner_element);
+  return div_element;
+}
+
 function initializeApp () {
-  var formatted_output = document.createElement("div");
-  formatted_output.setAttribute("id", "formatted-output");
-  document.getElementById("eventAdd").appendChild(formatted_output);
+  var formatted_output = document.createElement("iframe");
   var generate_button = document.createElement("button");
+  var json_text = document.createElement("textarea");
+  var css_text = document.createElement("textarea");
+  json_text.cols = "50";
+  json_text.rows = "25";
+  css_text.cols = "50";
+  css_text.rows = "25";
+  formatted_output.width = "641";
+  formatted_output.id = "formatted-output";
+  json_text.value = default_string;
+  json_text.id = "json-input";
+  css_text.value = default_css;
+  css_text.id = "css-input";
+  json_text = divMeUp(json_text);
+  json_text.appendChild(css_text);
   generate_button.innerHTML = "GENERATE";
   generate_button.addEventListener("click", generateOutput);
+  generate_button = divMeUp(generate_button);
+  document.getElementById("eventAdd").appendChild(formatted_output);
+  document.getElementById("eventAdd").appendChild(json_text);
   document.getElementById("eventAdd").appendChild(generate_button);
 }
 
