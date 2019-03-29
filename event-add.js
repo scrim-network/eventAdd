@@ -1,25 +1,77 @@
 var baseURL = "file:///Users/rsm5139/Git/eventAdd/page.html";
 
 var test_string = `{
+  "title":"'This Week'",
+  "date_range":"April 01 - April 05, 2019",
   "events":[
-  { "title":"New Years Party",
-    "location":"Penn State",
-    "start_date":"2019-12-31",
-    "end_date":"2020-01-01",
-    "start_time":"23:00",
-    "end_time":"01:00",
+  { "title":"Geosciences Colloquium Series Speaker",
+    "location":"22 Deike Building",
+    "start_date":"2019-04-02",
+    "end_date":"2019-04-02",
+    "start_time":"16:00",
+    "end_time":"17:00",
     "all_day":false,
-    "details":"Come join us for this epic party!"},
-  { "title":"New Years Hangover",
-    "location":"Everywhere",
-    "start_date":"2020-01-01",
-    "end_date":"2020-01-01",
-    "all_day":true,
-    "details":"Nurse your hangover and try to get through the workday."}
+    "details":"\\"Earth System Evolution as a Natural Lab for Planetary Science\\" - Dr. Christopher Reinhard, Assistant Professor, School of Earth & Atmospheric Sciences, Georgia Institute of Technology"},
+  { "title":"Water Insights Seminar",
+    "location":"312 Agricultural & Biological Engineering Building",
+    "start_date":"2019-04-02",
+    "end_date":"2019-04-02",
+    "start_time":"12:00",
+    "end_time":"13:00",
+    "all_day":false,
+    "details":"\\"Carbon Biogeochemistry of Chesapeake Bay\\" - Raymond Najjar, Professor of Oceanography and Joint appointment with Department of Geosciences, Penn State"},
+  { "title":"Energy & Environmental Economics & Policy (EEEP) Seminar",
+    "location":"157 Hosler Building",
+    "start_date":"2019-04-03",
+    "end_date":"2019-04-03",
+    "start_time":"12:00",
+    "end_time":"13:00",
+    "all_day":false,
+    "details":"\\"From Earth System Science to Coastal Flood Risk Management (and Back)\\" - Dr. Klaus Keller, Professor, Department of Geosciences, Penn State"},
+  { "title":"Meteorology & Atmospheric Science Colloquium",
+    "location":"112 Walker Building",
+    "start_date":"2019-04-03",
+    "end_date":"2019-04-03",
+    "start_time":"15:30",
+    "end_time":"16:30",
+    "all_day":false,
+    "details":"\\"Monitoring Ocean Dynamics Through Sound\\" - Jennifer Miksis-Olds, Associate Director of Research, Research Professor, University of New Hampshire"},
+  { "title":"Geochemistry Forum",
+    "location":"341 Deike Building",
+    "start_date":"2019-04-05",
+    "end_date":"2019-04-05",
+    "start_time":"15:30",
+    "end_time":"16:30",
+    "all_day":false,
+    "details":"\\"Metamorphism and the Evolution of Plate Tectonics\\" - Robert M. Holder, Postdoctoral Fellow, Department of Earth and Planetary Sciences, Johns Hopkins University"}
 ]}`;
 
-var default_css = `h2 {
-  color:inherit;
+var default_css = `#formatted {
+  text-align:center;
+  font-family: 'Arial',sans-serif;
+}
+
+#location {
+  font-weight: bold;
+}
+
+ul {
+  padding-left: 0;
+  margin-bottom: 40px;
+}
+
+ul li {
+  display:inline;
+  padding-right: 10px;
+}
+
+h3 {
+  margin-bottom: 50px;
+}
+
+h4 {
+  font-style: italic;
+  text-decoration: underline;
 }`;
 
 var default_string = test_string;
@@ -161,6 +213,36 @@ function createiCalendarString(startDate, endDate, allDay, startTime, endTime, l
   );
 }
 
+function dateTitle (date, time) {
+  var ds = dateString(date, time);
+  var d = new Date(ds);
+  var days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
+  var day = days[d.getDay()];
+  var months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  var month = months[d.getMonth()];
+  return "".concat(day, ", ", month, " ", d.getDate());
+}
+
+function locationTime (location, date, time, all_day) {
+  var ds = dateString(date, time);
+  var d = new Date(ds);
+  var hours = ["12", "01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11"];
+  var amPm = "PM"
+  var hour = hours[d.getHours()];
+  var minute = twoDigits(d.getMinutes());
+  var formatted_string = "";
+  if (d.getHours < 12) {
+    amPm = "AM";
+  }
+  if (location) {
+    formatted_string = formatted_string.concat(location, " ");
+  }
+  if (! all_day) {
+    formatted_string = formatted_string.concat("@ ", hour, ":", minute, " ", amPm);
+  }
+  return formatted_string;
+}
+
 function generateOutput () {
   var json_obj = tryParseJSON(document.getElementById("json-input").value);
   var current_css = document.getElementById("css-input").value;
@@ -171,24 +253,24 @@ function generateOutput () {
     json_obj.events.forEach(function(event) {
       i += 1;
       var event_element = document.createElement("div");
-      var title_element = document.createElement("h2");
+      var date_element = document.createElement("h4");
+      var title_element = document.createElement("p");
       var location_element = document.createElement("p");
       var details_element = document.createElement("p");
-      var time_element = document.createElement("p");
       var links_element = document.createElement("ul");
       var arguments = [event.start_date, event.end_date, event.all_day, event.start_time, event.end_time, event.location, event.title, event.details];
       var yahooString = "http://calendar.yahoo.com/?v=60&".concat(createYahooString.apply(this, arguments));
       var googleString = "https://calendar.google.com/calendar/render?action=TEMPLATE&".concat(createGoogleString.apply(this, arguments));
       var iCalendarString = baseURL.concat("?action=DOWNLOAD&", createiCalendarString.apply(this, arguments));
       event_element.id = "event"+i;
+      date_element.innerHTML = dateTitle(event.start_date, event.start_time);
       var t = document.createTextNode(event.title);
       title_element.appendChild(t);
-      t = document.createTextNode(event.location);
+      t = document.createTextNode(locationTime(event.location, event.start_date, event.start_time, event.all_day));
       location_element.appendChild(t);
+      location_element.id = "location";
       t = document.createTextNode(event.details);
       details_element.appendChild(t);
-      t = document.createTextNode(dateString(event.start_date, event.start_time)+" to "+dateString(event.end_date, event.end_time));
-      time_element.appendChild(t);
       var le = document.createElement("li");
       var a = document.createElement("a");
       a.setAttribute("href", encodeURI(googleString));
@@ -210,10 +292,10 @@ function generateOutput () {
       a.appendChild(t);
       le.appendChild(a);
       links_element.appendChild(le);
+      event_element.appendChild(date_element);
       event_element.appendChild(title_element);
       event_element.appendChild(location_element);
       event_element.appendChild(details_element);
-      event_element.appendChild(time_element);
       event_element.appendChild(links_element);
       rendered.appendChild(event_element);
     });
@@ -221,8 +303,16 @@ function generateOutput () {
     t = document.createTextNode(current_css);
     style_element.appendChild(t);
     rendered.appendChild(style_element);
+    var title = document.createElement("h1");
+    t = document.createTextNode(json_obj.title);
+    title.appendChild(t);
+    rendered.insertBefore(title, rendered.childNodes[0]);
+    var date_range = document.createElement("h3");
+    t = document.createTextNode(json_obj.date_range);
+    date_range.appendChild(t);
+    rendered.insertBefore(date_range, rendered.childNodes[1]);
     rendered = divMeUp(rendered);
-    document.getElementById("formatted-output").src = 'data:text/html;charset=utf-8,' + encodeURI(rendered.innerHTML);
+    document.getElementById("formatted-output").src = 'data:text/html;charset=utf-8,' + encodeURI(rendered.innerHTML).replace("#", "%23");
   } else {
     alert("Invalid JSON. Please correct errors and try again");
   }
@@ -244,6 +334,7 @@ function initializeApp () {
   css_text.cols = "50";
   css_text.rows = "25";
   formatted_output.width = "641";
+  formatted_output.height = "500";
   formatted_output.id = "formatted-output";
   json_text.value = default_string;
   json_text.id = "json-input";
