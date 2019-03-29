@@ -11,7 +11,7 @@ var test_string = `{
     "start_time":"16:00",
     "end_time":"17:00",
     "all_day":false,
-    "details":"\\"Earth System Evolution as a Natural Lab for Planetary Science\\" - Dr. Christopher Reinhard, Assistant Professor, School of Earth & Atmospheric Sciences, Georgia Institute of Technology"},
+    "details":"Dr. Christopher Reinhard, Assistant Professor, School of Earth & Atmospheric Sciences, Georgia Institute of Technology - \\"Earth System Evolution as a Natural Lab for Planetary Science\\""},
   { "title":"Water Insights Seminar",
     "location":"312 Agricultural & Biological Engineering Building",
     "start_date":"2019-04-02",
@@ -19,7 +19,7 @@ var test_string = `{
     "start_time":"12:00",
     "end_time":"13:00",
     "all_day":false,
-    "details":"\\"Carbon Biogeochemistry of Chesapeake Bay\\" - Raymond Najjar, Professor of Oceanography and Joint appointment with Department of Geosciences, Penn State"},
+    "details":"Raymond Najjar, Professor of Oceanography and Joint appointment with Department of Geosciences, Penn State - \\"Carbon Biogeochemistry of Chesapeake Bay\\""},
   { "title":"Energy & Environmental Economics & Policy (EEEP) Seminar",
     "location":"157 Hosler Building",
     "start_date":"2019-04-03",
@@ -27,7 +27,7 @@ var test_string = `{
     "start_time":"12:00",
     "end_time":"13:00",
     "all_day":false,
-    "details":"\\"From Earth System Science to Coastal Flood Risk Management (and Back)\\" - Dr. Klaus Keller, Professor, Department of Geosciences, Penn State"},
+    "details":"Dr. Klaus Keller, Professor, Department of Geosciences, Penn State - \\"From Earth System Science to Coastal Flood Risk Management (and Back)\\""},
   { "title":"Meteorology & Atmospheric Science Colloquium",
     "location":"112 Walker Building",
     "start_date":"2019-04-03",
@@ -35,7 +35,7 @@ var test_string = `{
     "start_time":"15:30",
     "end_time":"16:30",
     "all_day":false,
-    "details":"\\"Monitoring Ocean Dynamics Through Sound\\" - Jennifer Miksis-Olds, Associate Director of Research, Research Professor, University of New Hampshire"},
+    "details":"Jennifer Miksis-Olds, Associate Director of Research, Research Professor, University of New Hampshire - \\"Monitoring Ocean Dynamics Through Sound\\""},
   { "title":"Geochemistry Forum",
     "location":"341 Deike Building",
     "start_date":"2019-04-05",
@@ -43,7 +43,7 @@ var test_string = `{
     "start_time":"15:30",
     "end_time":"16:30",
     "all_day":false,
-    "details":"\\"Metamorphism and the Evolution of Plate Tectonics\\" - Robert M. Holder, Postdoctoral Fellow, Department of Earth and Planetary Sciences, Johns Hopkins University"}
+    "details":"Robert M. Holder, Postdoctoral Fellow, Department of Earth and Planetary Sciences, Johns Hopkins University - \\"Metamorphism and the Evolution of Plate Tectonics\\""}
 ]}`;
 
 var default_css = `#formatted {
@@ -57,7 +57,6 @@ var default_css = `#formatted {
 
 ul {
   padding-left: 0;
-  margin-bottom: 40px;
 }
 
 ul li {
@@ -72,6 +71,8 @@ h3 {
 h4 {
   font-style: italic;
   text-decoration: underline;
+  color: #215868;
+  padding-top: 40px;
 }`;
 
 var default_string = test_string;
@@ -170,6 +171,23 @@ function createGoogleString(startDate, endDate, allDay, startTime, endTime, loca
   );
 }
 
+function createOutlookString(startDate, endDate, allDay, startTime, endTime, location, title, detail) {
+  formatted = formattedDates(startDate, endDate, allDay, startTime, endTime);
+  return "".concat("subject=",
+    title,
+    "&startdt=",
+    formatted[0],
+    "&enddt",
+    formatted[1],
+    "&location=",
+    location,
+    "&body=",
+    detail,
+    "&allday=",
+    allDay
+  );
+}
+
 function createYahooString(startDate, endDate, allDay, startTime, endTime, location, title, detail) {
   formatted = formattedDates(startDate, endDate, allDay, startTime, endTime);
   var duration = "";
@@ -258,9 +276,11 @@ function generateOutput () {
       var location_element = document.createElement("p");
       var details_element = document.createElement("p");
       var links_element = document.createElement("ul");
+      var links_element2 = document.createElement("ul");
       var arguments = [event.start_date, event.end_date, event.all_day, event.start_time, event.end_time, event.location, event.title, event.details];
       var yahooString = "http://calendar.yahoo.com/?v=60&".concat(createYahooString.apply(this, arguments));
       var googleString = "https://calendar.google.com/calendar/render?action=TEMPLATE&".concat(createGoogleString.apply(this, arguments));
+      var outlookString = "https://outlook.live.com/owa/?path=/calendar/action/compose&rru=addevent&".concat(createOutlookString.apply(this, arguments));
       var iCalendarString = baseURL.concat("?action=DOWNLOAD&", createiCalendarString.apply(this, arguments));
       event_element.id = "event"+i;
       date_element.innerHTML = dateTitle(event.start_date, event.start_time);
@@ -272,6 +292,10 @@ function generateOutput () {
       t = document.createTextNode(event.details);
       details_element.appendChild(t);
       var le = document.createElement("li");
+      t = document.createTextNode("Add to calendar:");
+      le.appendChild(t);
+      links_element.appendChild(le);
+      le = document.createElement("li");
       var a = document.createElement("a");
       a.setAttribute("href", encodeURI(googleString));
       t = document.createTextNode("Google");
@@ -287,16 +311,28 @@ function generateOutput () {
       links_element.appendChild(le);
       le = document.createElement("li");
       a = document.createElement("a");
-      a.setAttribute("href", encodeURI(iCalendarString));
-      t = document.createTextNode("iCal");
+      a.setAttribute("href", encodeURI(outlookString));
+      t = document.createTextNode("Outlook.com");
       a.appendChild(t);
       le.appendChild(a);
       links_element.appendChild(le);
+      le = document.createElement("li");
+      t = document.createTextNode("Download:");
+      le.appendChild(t);
+      links_element2.appendChild(le);
+      le = document.createElement("li");
+      a = document.createElement("a");
+      a.setAttribute("href", encodeURI(iCalendarString));
+      t = document.createTextNode("Apple calendar & Outlook desktop");
+      a.appendChild(t);
+      le.appendChild(a);
+      links_element2.appendChild(le);
       event_element.appendChild(date_element);
       event_element.appendChild(title_element);
       event_element.appendChild(location_element);
       event_element.appendChild(details_element);
       event_element.appendChild(links_element);
+      event_element.appendChild(links_element2);
       rendered.appendChild(event_element);
     });
     var style_element = document.createElement("style");
