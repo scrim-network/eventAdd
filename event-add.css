@@ -1,0 +1,44 @@
+#eventAdd {
+  width: 100%;
+  background-color: white;
+}
+
+#formatted-output {
+  width: 100%;
+  padding: 0;
+  margin: 0;
+}
+
+#generate-button {
+  clear: left;
+}
+
+#custom-input {
+  width: 100%;
+  padding: 0;
+  margin: 0;
+}
+
+#json-section {
+  clear: left;
+  width: 50%;
+  float: left;
+}
+
+#json-section h4,
+#css-section h4 {
+  text-align: center;
+}
+
+#json-input {
+  width: 100%;
+}
+
+#css-section {
+  width: 50%;
+  float: left;
+}
+
+#css-input {
+  width: 100%;
+}
