@@ -7,10 +7,16 @@
   width: 100%;
   padding: 0;
   margin: 0;
+  height: 100%;
 }
 
-#generate-button {
+#buttons {
   clear: left;
+  padding: 5px 0;
+}
+
+#css-button {
+  float: right;
 }
 
 #custom-input {
@@ -21,7 +27,7 @@
 
 #json-section {
   clear: left;
-  width: 50%;
+  width: 100%;
   float: left;
 }
 
@@ -32,13 +38,34 @@
 
 #json-input {
   width: 100%;
+  height: 300px;
+  margin-bottom: 0;
 }
 
 #css-section {
-  width: 50%;
+  width: 49%;
   float: left;
+  padding-left: 7px;
+  float: right;
 }
 
 #css-input {
   width: 100%;
+  height: 300px;
+  margin-bottom: 0;
+}
+
+button {
+  background-color: #4CAF50; /* Green */
+  border: none;
+  color: white;
+  padding: 10px 23px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+}
+
+#css-button {
+  background-color:#33c9ff;
 }

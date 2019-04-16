@@ -1,7 +1,8 @@
 const baseURL = "file:///Users/rsm5139/Git/eventAdd/page.html";
+const cheat_sheet = "https://www.cheatography.com/mackan90096/cheat-sheets/json/";
 
 const test_string = `{
-  "title":"'This Week'",
+  "title":"This Week",
   "start_date":"2019-04-01",
   "end_date":"2019-04-05",
   "blurb":"Additional information",
@@ -14,6 +15,7 @@ const test_string = `{
     "start_time":"16:00",
     "end_time":"17:00",
     "all_day":false,
+    "web":"https://dev.eesi.psu.edu/",
     "details":"Dr. Christopher Reinhard, Assistant Professor, School of Earth & Atmospheric Sciences, Georgia Institute of Technology"},
   { "title":"Carbon Biogeochemistry of Chesapeake Bay",
     "series":"Water Insights Seminar",
@@ -57,71 +59,83 @@ const default_css = `#formatted {
   font-family: 'Arial',sans-serif;
   background: white;
   width: 100%;
-  line-height: .7em;
 }
 
-#event-title {
+#document-title {
+  color: #8B0000;
+}
+
+.date-title {
+  margin-top: 40px;
+}
+
+.event-title {
   font-weight: bold;
-  line-height: 1em;
 }
 
-#calendar-links {
+.event-calendar, .event-web {
   font-size: .9em;
 }
 
-div.event {
-  margin-bottom: 40px;
-}
-
-span.title {
-  font-style: italic;
-}
-
-p.no-event {
-  font-style: italic;
-}
-
-h1 {
-  line-height: 1em;
-}
-
-h3 {
+.event {
   margin-bottom: 20px;
 }
 
+.title, .no-event {
+  font-style: italic;
+}
+
+p {
+  padding-bottom: 5px;
+}
+
 h4 {
-  text-decoration: underline;
-  padding-top: 40px;
+  text-transform: uppercase;
+  color: #15429D;
 }`;
 
 var default_string = `{
-  "title":"'This Week'",
+
+  "title":"This Week",
   "start_date":"2019-04-01",
   "end_date":"2019-04-05",
-  "subtitle":"April 01 - April 05, 2019",
-  "blurb":"<optional additional informataion>",
-  "events":[
-  { "title":"put your title here",
+  "blurb":"",
+
+  "events":[{
+
+    "title":"Put your title here",
     "series":"seminar series, if applicable",
+    "speaker": "John Doe, Jane Doe",
     "location":"event location",
     "start_date":"2019-04-02",
     "end_date":"2019-04-02",
     "start_time":"16:00",
     "end_time":"17:00",
     "all_day":false,
-    "details":""},
-  { "title":"title",
+    "web":"https://clima.psu.edu",
+    "details":"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat."
+
+    },{
+
+    "title":"title",
     "series":"",
+    "speaker":"",
     "location":"",
     "start_date":"2019-04-05",
     "end_date":"2019-04-05",
     "start_time":"15:30",
     "end_time":"16:30",
     "all_day":false,
-    "details":""}
-]}`;
+    "details":"",
+    "custom_section_1":"",
+    "custom_section_2":"",
+    "custom_section_3":"",
+    "custom_section_4":"",
+    "custom_section_5":""
 
-default_string = test_string;
+}]}`;
+
+//default_string = test_string;
 
 function validDate(date, time) {
   //Checks that date string and time string are properly formatted.
@@ -201,6 +215,19 @@ function formattedDates(startDate, endDate, allDay, startTime, endTime) {
   return [formattedStart, formattedEnd];
 }
 
+// Easily wrap text into a new element
+// defaults to empty p
+function textWrap(string, tag, style) {
+  const tag_name = (tag) ? tag : "p";
+  const text = (string) ? string : "";
+  const elem = document.createElement(tag_name);
+  const t = document.createTextNode(text);
+  if (style) {
+    elem.className = style;
+  }
+  elem.appendChild(t);
+  return elem;
+}
 
 function twoDigits(num) {
   //Returns num as a 2 character number (or more, if num is more than 2 characters).
@@ -321,6 +348,8 @@ function divMeUp(inner_element) {
 //dateTile
 //locationTime
 //eventTitle
+//eventWeb
+//eventSpeaker
 //calendarLinks
 function documentTitle(json_obj) {
   const elem = document.createElement("h1");
@@ -336,7 +365,7 @@ function documentSubTitle(json_obj) {
   const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
   const sd = new Date(dateString(json_obj.start_date, false));
   const ed =new Date(dateString(json_obj.end_date, false));
-  const text = "".concat(months[sd.getMonth()], " ", sd.getDate(), " - ", months[ed.getMonth()], " ", ed.getDate(), ", ", ed.getFullYear());
+  const text = "".concat(months[sd.getMonth()], " ", sd.getDate(), " — ", months[ed.getMonth()], " ", ed.getDate(), ", ", ed.getFullYear());
   const t = document.createTextNode(text);
   elem.id = "document-subtitle";
   elem.appendChild(t);
@@ -362,6 +391,8 @@ function dateTitle(date_obj) {
 }
 
 function locationTime(location, date, time, all_day) {
+  const elem = document.createElement("p");
+  elem.className = "event-location";
   var ds = dateString(date, time);
   var d = new Date(ds);
   var hours = ["12", "01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11"];
@@ -378,7 +409,8 @@ function locationTime(location, date, time, all_day) {
   if (!all_day) {
     formatted_string = formatted_string.concat("@ ", hour, ":", minute, " ", amPm);
   }
-  return formatted_string;
+  elem.appendChild(document.createTextNode(formatted_string));
+  return elem;
 }
 
 function eventTitle(title, series) {
@@ -387,7 +419,7 @@ function eventTitle(title, series) {
   var title_element = document.createElement("p");
   var t = "";
   span_element.className = "title";
-  title_element.id = "event-title";
+  title_element.className = "event-title";
   if (series) {
     t = document.createTextNode(series + ": ");
     title_element.appendChild(t);
@@ -397,14 +429,37 @@ function eventTitle(title, series) {
   return title_element;
 }
 
+function eventWeb(event) {
+  const a = document.createElement("a");
+  const elem = document.createElement("p");
+  const t = document.createTextNode("more info: ");
+  a.innerHTML = event.web;
+  a.href = event.web;
+  elem.appendChild(t);
+  elem.appendChild(a);
+  elem.className = "event-web";
+  return elem;
+}
+
+function eventSpeaker(json_obj) {
+  const elem = document.createElement("p");
+  const text = (json_obj.speaker) ? json_obj.speaker : "";
+  const t = document.createTextNode(text);
+  elem.className = "event-speaker";
+  elem.appendChild(t);
+  return elem;
+}
+
 function calendarLinks(event) {
   const elem = document.createElement("p");
-  const arguments = [event.start_date, event.end_date, event.all_day, event.start_time, event.end_time, event.location, event.title, event.details];
+  const event_title = event.series + ": " + event.title;
+  const event_details = event.speaker + ", " + event.details;
+  const arguments = [event.start_date, event.end_date, event.all_day, event.start_time, event.end_time, event.location, event_title, event_details];
   const yahooString = "http://calendar.yahoo.com/?v=60&".concat(createYahooString.apply(this, arguments));
   const googleString = "https://calendar.google.com/calendar/render?action=TEMPLATE&".concat(createGoogleString.apply(this, arguments));
   const outlookString = "https://outlook.office.com/owa/?path=/calendar/action/compose&rru=addevent&".concat(createOutlookString.apply(this, arguments));
   const iCalendarString = baseURL.concat("?action=DOWNLOAD&", createiCalendarString.apply(this, arguments));
-  elem.id = "calendar-links";
+  elem.className = "event-calendar";
   var t = null;
   var a = null;
   t = document.createTextNode("add to calendar: ");
@@ -441,10 +496,17 @@ function calendarLinks(event) {
 }
 
 function generateOutput() {
-  const json_obj = tryParseJSON(document.getElementById("json-input").value);
-  const current_css = document.getElementById("css-input").value;
-  var rendered = document.createElement("div");
+  // Get editor values
+  const json_obj = tryParseJSON(ace.edit("json-input").getValue());
+  const current_css = ace.edit("css-input").getValue();
+
+  // Document sections
+  const rendered = document.createElement("div");
   rendered.id = "formatted";
+  const document_head = document.createElement("div");
+  document_head.id = "document-head";
+  var date_title = document.createElement("div");
+
   var num_e = 0;
   var tmp = null;
   var td = null;
@@ -452,16 +514,21 @@ function generateOutput() {
   var i = 0;
   var sd = null;
   var ed = null;
+
+  // Returns flase if object no valid JSON
   if (json_obj) {
-    rendered.appendChild(documentTitle(json_obj));
     if (validDate(json_obj.start_date, false) && validDate(json_obj.end_date, false)) {
       sd = new Date(dateString(json_obj.start_date, false));
       ed = new Date(dateString(json_obj.end_date, false));
     } else {
       return false;
     }
-    rendered.appendChild(documentSubTitle(json_obj));
-    rendered.appendChild(documentBlurb(json_obj));
+    document_head.appendChild(documentTitle(json_obj));
+    document_head.appendChild(documentSubTitle(json_obj));
+    document_head.appendChild(documentBlurb(json_obj));
+    rendered.appendChild(document_head);
+
+    // Loop over each event
     json_obj.events.forEach(function(event) {
       i += 1;
 
@@ -489,6 +556,8 @@ function generateOutput() {
       var location_element = document.createElement("p");
       var details_element = document.createElement("p");
       var additional_element = document.createElement("p");
+      var web_element = document.createElement("div");
+      var speaker_element = document.createElement("p");
 
       // Start the event
       event_element.id = "event" + i;
@@ -500,12 +569,15 @@ function generateOutput() {
         if (num_e == 0) {
           date_element = document.createElement("h4");
           date_element.innerHTML = dateTitle(sd);
-          rendered.appendChild(date_element);
           tmp = document.createElement("p");
           tmp.className = "no-event";
           t = document.createTextNode("no events");
           tmp.appendChild(t);
-          rendered.appendChild(tmp);
+          date_title = document.createElement("div");
+          date_title.className = "date-title";
+          date_title.appendChild(date_element);
+          date_title.appendChild(tmp);
+          rendered.appendChild(date_title);
         }
         sd.setDate(sd.getDate() + 1);
         num_e = 0;
@@ -514,7 +586,10 @@ function generateOutput() {
         if (num_e == 0) {
           date_element = document.createElement("h4");
           date_element.innerHTML = dateTitle(sd);
-          rendered.appendChild(date_element);
+          date_title = document.createElement("div");
+          date_title.className = "date-title";
+          date_title.appendChild(date_element);
+          rendered.appendChild(date_title);
         }
         sd.setDate(sd.getDate() + 1);
         num_e = 0;
@@ -522,44 +597,43 @@ function generateOutput() {
 
       // Title of the event
       if (event.custom_section_1) {
-        t = document.createTextNode(event.custom_section_1);
+        event_element.appendChild(textWrap(event.custom_section_1, "p", "event-title"));
       } else {
-        t = eventTitle(event.title, event.series);
+        event_element.appendChild(eventTitle(event.title, event.series));
       }
-      title_element.appendChild(t);
-      title_element.id = "title";
+
+      // Speaker/s
+      if (event.custom_section_2) {
+        event_element.appendChild(textWrap(event.custom_section_2, "p", "event-speaker"));
+      } else if (event.speaker) {
+        event_element.appendChild(eventSpeaker(event));
+      }
 
       // Location and time
-      if (event.custom_section_2) {
-        t = document.createTextNode(event.custom_section_2);
+      if (event.custom_section_3) {
+        event_element.appendChild(textWrap(event.custom_section_3, "p", "event-location"));
       } else {
-        t = document.createTextNode(locationTime(event.location, event.start_date, event.start_time, event.all_day));
+        event_element.appendChild(locationTime(event.location, event.start_date, event.start_time, event.all_day));
       }
-      location_element.appendChild(t);
-      location_element.id = "location";
 
       // Details
-      t = document.createTextNode('');
-      if (event.custom_section_3) {
-        t = document.createTextNode(event.custom_section_3);
+      if (event.custom_section_4) {
+        event_element.appendChild(textWrap(event.custom_section_4, "p", "event-details"));
       } else if (event.details) {
-        t = document.createTextNode(event.details);
+        event_element.appendChild(textWrap(event.details, "p", "event-details"));
       }
-      details_element.appendChild(t);
-      details_element.id = "details";
 
       // Optional additional section
-      if (event.custom_section_4) {
-        t = document.createTextNode(event.custom_section_4);
-        additional_element.appendChild(t);
-        additional_element.id = "additional";
+      if (event.custom_section_5) {
+        event_element.appendChild(textWrap(event.custom_section_5, "p", "event-additional"));
+      }
+
+      // Web URL
+      if (event.web) {
+        event_element.appendChild(eventWeb(event));
       }
 
       // Bring them altogether
-      event_element.appendChild(title_element);
-      event_element.appendChild(location_element);
-      event_element.appendChild(details_element);
-      event_element.appendChild(additional_element);
       event_element.appendChild(calendarLinks(event));
       rendered.appendChild(event_element);
     });
@@ -581,50 +655,79 @@ function generateOutput() {
     t = document.createTextNode(current_css);
     style_element.appendChild(t);
     rendered.appendChild(style_element);
-    rendered = divMeUp(rendered);
+    //rendered = divMeUp(rendered);
     document.getElementById("formatted-output").src = "about:blank";
-    document.getElementById("formatted-output").src = 'data:text/html;charset=utf-8,' + encodeURI(rendered.innerHTML).replace(new RegExp("#", 'g'), "%23");
+    document.getElementById("formatted-output").src = 'data:text/html;charset=utf-8,' + encodeURI(divMeUp(rendered).innerHTML).replace(new RegExp("#", 'g'), "%23");
   } else {
     alert("Invalid JSON. Please correct errors and try again");
   }
 }
 
+function cssEditor() {
+  const json_editor = ace.edit("json-input");
+  const css_editor = ace.edit("css-input");
+  if (document.getElementById("css-section").style.display == "none") {
+    document.getElementById("json-section").style = "width:50%;";
+    document.getElementById("css-section").style = "display:inline;";
+  } else {
+    document.getElementById("json-section").style = "width:100%;";
+    document.getElementById("css-section").style = "display:none;";
+  }
+  json_editor.resize();
+  css_editor.resize();
+}
+
 function initializeApp() {
   var formatted_output = document.createElement("iframe");
   var generate_button = document.createElement("button");
-  var json_text = document.createElement("textarea");
-  var css_text = document.createElement("textarea");
+  var css_button = document.createElement("button");
+  var buttons = document.createElement("div");
+  var json_text = document.createElement("pre");
+  var css_text = document.createElement("pre");
   var json_header = document.createElement("h4");
   var css_header = document.createElement("h4");
   var clear = document.createElement("p");
   clear.style = "clear: both;";
-  json_header.innerHTML = "JSON";
+  json_header.innerHTML = "edit event details (<a href=\""+cheat_sheet+"\">JSON</a>)";
   json_header = divMeUp(json_header);
   json_header.id = "json-section";
-  css_header.innerHTML = "CSS";
+  css_header.innerHTML = "edit style (CSS)";
   css_header = divMeUp(css_header);
   css_header.id = "css-section";
-  json_text.rows = "20";
-  css_text.rows = "20";
-  formatted_output.height = "300";
+  css_header.style.display = "none";
   formatted_output.id = "formatted-output";
-  json_text.value = default_string;
   json_text.id = "json-input";
-  css_text.value = default_css;
   css_text.id = "css-input";
   json_header.appendChild(json_text);
   css_header.appendChild(css_text);
   json_header = divMeUp(json_header);
   json_header.id = "custom-input";
   json_header.appendChild(css_header);
-  generate_button.innerHTML = "GENERATE";
+  buttons.id = "buttons";
+  generate_button.innerHTML = "Generate/Refresh HTML";
   generate_button.addEventListener("click", generateOutput);
-  generate_button = divMeUp(generate_button);
   generate_button.id = "generate-button";
-  document.getElementById("eventAdd").appendChild(formatted_output);
-  document.getElementById("eventAdd").appendChild(generate_button);
+  buttons.appendChild(generate_button);
+  css_button.innerHTML = "Toggle CSS";
+  css_button.addEventListener("click", cssEditor);
+  css_button.id = "css-button";
+  buttons.appendChild(css_button);
   document.getElementById("eventAdd").appendChild(json_header);
+  document.getElementById("eventAdd").appendChild(buttons);
+  document.getElementById("eventAdd").appendChild(formatted_output);
   document.getElementById("eventAdd").appendChild(clear);
+
+  // Ace editor
+  const json_editor = ace.edit("json-input");
+  json_editor.setTheme("ace/theme/xcode");
+  json_editor.session.setMode("ace/mode/json");
+  json_editor.getSession().setUseWrapMode(true);
+  json_editor.setValue(default_string, -1);
+  const css_editor = ace.edit("css-input");
+  css_editor.setTheme("ace/theme/xcode");
+  css_editor.session.setMode("ace/mode/css");
+  css_editor.getSession().setUseWrapMode(true);
+  css_editor.setValue(default_css, -1);
 }
 
 initializeApp();
