@@ -6,6 +6,12 @@ const test_string = `{
   "start_date":"2019-04-01",
   "end_date":"2019-04-05",
   "blurb":"Additional information",
+  "contact_name":"Beth Tamminga",
+  "contact_location":"2217 EES Building",
+  "contact_number":"814-863-7091",
+  "contact_email":"bub6@psu.edu",
+  "custom_contact":"",
+  "legalese":"Persons with disabilities who anticipate needing accommodations or who have questions about physical access may contact BethTamminga at 814-863-7091 in advance of the seminar.  This publication is available in alternative media on request.  Penn State is an equal opportunity, affirmative action employer, and is committed to providing employment opportunities to all qualified applicants without regard to race, color, religion, age, sex, sexual orientation, gender identity, national origin, disability or protected veteran status. U.Ed. EMS 15-74",
   "events":[
   { "title":"Earth System Evolution as a Natural Lab for Planetary Science",
     "series":"Geosciences Colloquium",
@@ -55,81 +61,93 @@ const test_string = `{
     "details":"Robert M. Holder, Postdoctoral Fellow, Department of Earth and Planetary Sciences, Johns Hopkins University"}
 ]}`;
 
-const default_css = `#formatted {
-  font-family: 'Arial',sans-serif;
-  background: white;
-  width: 100%;
-}
-
-#document-title {
-  color: #8B0000;
-}
-
-.date-title {
-  margin-top: 40px;
-}
-
-.event-title {
-  font-weight: bold;
-}
-
-.event-calendar, .event-web {
-  font-size: .9em;
-}
-
-.event {
-  margin-bottom: 20px;
-}
-
-.title, .no-event {
-  font-style: italic;
-}
-
-p {
-  padding-bottom: 5px;
-}
-
-h4 {
-  text-transform: uppercase;
-  color: #15429D;
-}`;
+const default_css = ``;
 
 var default_string = `{
 
   "title":"This Week",
   "start_date":"2019-04-01",
   "end_date":"2019-04-05",
-  "blurb":"",
+  "contact_name":"Beth Tamminga",
+  "contact_location":"2217 EES Building",
+  "contact_number":"814-863-7091",
+  "contact_email":"bub6@psu.edu",
+  "custom_contact":"",
+  "legalese":"Persons with disabilities who anticipate needing accommodations or who have questions about physical access may contact BethTamminga at 814-863-7091 in advance of the seminar.  This publication is available in alternative media on request.  Penn State is an equal opportunity, affirmative action employer, and is committed to providing employment opportunities to all qualified applicants without regard to race, color, religion, age, sex, sexual orientation, gender identity, national origin, disability or protected veteran status. U.Ed. EMS 15-74",
 
   "events":[{
 
-    "title":"Put your title here",
-    "series":"seminar series, if applicable",
-    "speaker": "John Doe, Jane Doe",
-    "location":"event location",
+    "title":"title",
+    "series":"series",
+    "speaker": "speaker",
+    "location":"location",
+    "start_date":"2019-04-01",
+    "end_date":"2019-04-01",
+    "start_time":"16:00",
+    "end_time":"17:00",
+    "all_day":false,
+    "web":"web",
+    "details":"details",
+    "custom_section_1":"",
+    "custom_section_2":"",
+    "custom_section_3":"",
+    "custom_section_4":"",
+    "custom_section_5":""
+
+    },{
+
+    "title":"title",
+    "series":"series",
+    "speaker": "speaker",
+    "location":"location",
     "start_date":"2019-04-02",
     "end_date":"2019-04-02",
     "start_time":"16:00",
     "end_time":"17:00",
     "all_day":false,
-    "web":"https://clima.psu.edu",
-    "details":"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat."
+    "web":"web",
+    "details":"details",
+    "custom_section_1":"custom_section_1",
+    "custom_section_2":"custom_section_2",
+    "custom_section_3":"custom_section_3",
+    "custom_section_4":"custom_section_4",
+    "custom_section_5":"custom_section_5"
 
     },{
 
-    "title":"title",
-    "series":"",
-    "speaker":"",
-    "location":"",
-    "start_date":"2019-04-05",
-    "end_date":"2019-04-05",
-    "start_time":"15:30",
-    "end_time":"16:30",
+    "title":"Wind Variability and Impact on Markets",
+    "series":"Energy & Environmental Economics & Policy (EEEP) Seminar",
+    "speaker": "Dr. Ross Baldick, Professor, Department of Electrical & Computer Engineering, Leland Barclay Fellow in Engineering, The University of Texas at Austin",
+    "location":"157 Hosler Building",
+    "start_date":"2019-04-03",
+    "end_date":"2019-04-03",
+    "start_time":"12:00",
+    "end_time":"13:00",
     "all_day":false,
+    "web":"",
     "details":"",
     "custom_section_1":"",
     "custom_section_2":"",
     "custom_section_3":"",
+    "custom_section_4":"",
+    "custom_section_5":""
+
+    },{
+
+    "title":"Measuring Landscape Dynamics in Sedimentary Deposits",
+    "series":"Geosciences Colloquium Series",
+    "speaker": "Liz Hajek, Associate Professor, Geosciences Department, Penn State",
+    "location":"22 Deike Building",
+    "start_date":"2019-04-04",
+    "end_date":"2019-04-04",
+    "start_time":"16:00",
+    "end_time":"17:00",
+    "all_day":false,
+    "web":"",
+    "details":"",
+    "custom_section_1":"",
+    "custom_section_2":"",
+    "custom_section_3":"Pre-talk Coffee & Cookies Reception @ the EMS Museum, Ground Floor, Deike @ 3:45 PM; Lecture 4:00 PM @ 22 Deike Building",
     "custom_section_4":"",
     "custom_section_5":""
 
@@ -262,30 +280,30 @@ function tryParseJSON(jsonString) {
 function createGoogleString(startDate, endDate, allDay, startTime, endTime, location, title, detail) {
   formatted = formattedDates(startDate, endDate, allDay, startTime, endTime);
   return "".concat("text=",
-    title,
+    encodeURI(title).replace(new RegExp("&", 'g'), "%26"),
     "&dates=",
     formatted[0],
     "/",
     formatted[1],
     "&location=",
-    location,
+    encodeURI(location).replace(new RegExp("&", 'g'), "%26"),
     "&details=",
-    detail
+    encodeURI(detail).replace(new RegExp("&", 'g'), "%26")
   );
 }
 
 function createOutlookString(startDate, endDate, allDay, startTime, endTime, location, title, detail) {
   formatted = formattedDates(startDate, endDate, allDay, startTime, endTime);
   return "".concat("subject=",
-    title,
+    encodeURI(title).replace(new RegExp("&", 'g'), "%26"),
     "&startdt=",
     formatted[0],
     "&enddt",
     formatted[1],
     "&location=",
-    location,
+    encodeURI(location).replace(new RegExp("&", 'g'), "%26"),
     "&body=",
-    detail,
+    encodeURI(detail).replace(new RegExp("&", 'g'), "%26"),
     "&allday=",
     allDay
   );
@@ -308,12 +326,12 @@ function createYahooString(startDate, endDate, allDay, startTime, endTime, locat
     dateTime = dateTime.concat("&ET=", formatted[1]);
   }
   return "".concat("TITLE=",
-    title,
+    encodeURI(title).replace(new RegExp("&", 'g'), "%26"),
     dateTime,
     "&in_loc=",
-    location,
+    encodeURI(location).replace(new RegExp("&", 'g'), "%26"),
     "&DESC=",
-    detail
+    encodeURI(detail).replace(new RegExp("&", 'g'), "%26")
   );
 }
 
@@ -326,11 +344,11 @@ function createiCalendarString(startDate, endDate, allDay, startTime, endTime, l
     "&allDay=",
     allDay,
     "&location=",
-    location,
+    location.replace(new RegExp("&", 'g'), "%26"),
     "&title=",
-    title,
+    title.replace(new RegExp("&", 'g'), "%26"),
     "&detail=",
-    detail
+    detail.replace(new RegExp("&", 'g'), "%26")
   );
 }
 
@@ -339,6 +357,17 @@ function divMeUp(inner_element) {
   const div_element = document.createElement("div");
   div_element.appendChild(inner_element);
   return div_element;
+}
+
+function easyFont(text, color, size, face) {
+  //Create a font element
+  const elem = document.createElement("font");
+  const t = document.createTextNode(text);
+  if (color) { elem.color = color; }
+  if (size) { elem.size = size; }
+  if (face) { elem.face = face; }
+  elem.appendChild(t);
+  return elem;
 }
 
 //This section deals with formatting the document
@@ -351,47 +380,67 @@ function divMeUp(inner_element) {
 //eventWeb
 //eventSpeaker
 //calendarLinks
+//legalese
 function documentTitle(json_obj) {
-  const elem = document.createElement("h1");
+  const elem = document.createElement("font");
   const text = (json_obj.title) ? json_obj.title : "";
   const t = document.createTextNode(text);
   elem.id = "document-title";
+  elem.size = 7;
+  elem.face = "arial";
+  elem.color = "#8B0000";
   elem.appendChild(t);
   return elem;
 }
 
 function documentSubTitle(json_obj) {
-  const elem = document.createElement("h3");
+  const elem = document.createElement("font");
   const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
   const sd = new Date(dateString(json_obj.start_date, false));
   const ed =new Date(dateString(json_obj.end_date, false));
   const text = "".concat(months[sd.getMonth()], " ", sd.getDate(), " — ", months[ed.getMonth()], " ", ed.getDate(), ", ", ed.getFullYear());
   const t = document.createTextNode(text);
   elem.id = "document-subtitle";
+  elem.size = 5;
+  elem.face = "arial";
   elem.appendChild(t);
   return elem;
 }
 
 function documentBlurb(json_obj) {
-  const elem = document.createElement("p");
-  const text = (json_obj.blurb) ? json_obj.blurb : "";
-  const t = document.createTextNode(text);
-  elem.id = "document-blurb";
+  const elem = document.createElement("font");
+  const email = document.createElement("a");
+  var t = document.createTextNode("A weekly listing of seminars in the College of Earth and Mineral Sciences as well as seminars that may be interesting to EMS faculty and students. If you would like to advertise a seminar or talk in \"This Week\", please send the speaker's name, title of talk, affiliation, date and time to: ".concat(json_obj.contact_name, "; ", json_obj.contact_location, "; ", json_obj.contact_number, "; "));
   elem.appendChild(t);
+  elem.id = "document-blurb";
+  elem.face = "arial";
+  elem.size = 2;
+  email.href = "MAILTO:" + json_obj.contact_email;
+  email.innerHTML = json_obj.contact_email;
+  elem.appendChild(email);
   return elem;
 }
 
 function dateTitle(date_obj) {
+  const elem = document.createElement("font");
+  const bold = document.createElement("b");
+  var t = "";
   var d = date_obj;
   var days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
   var day = days[d.getDay()];
   var months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
   var month = months[d.getMonth()];
-  return "".concat(day, ", ", month, " ", d.getDate());
+  t = document.createTextNode("".concat(day, ", ", month, " ", d.getDate()));
+  bold.appendChild(t);
+  elem.appendChild(bold);
+  elem.size = 4;
+  elem.face = "arial";
+  elem.color = "#15429D";
+  return elem;
 }
 
 function locationTime(location, date, time, all_day) {
-  const elem = document.createElement("p");
+  const elem = document.createElement("font");
   elem.className = "event-location";
   var ds = dateString(date, time);
   var d = new Date(ds);
@@ -400,7 +449,7 @@ function locationTime(location, date, time, all_day) {
   var hour = hours[d.getHours()];
   var minute = twoDigits(d.getMinutes());
   var formatted_string = "";
-  if (d.getHours < 12) {
+  if (d.getHours() < 12) {
     amPm = "AM";
   }
   if (location) {
@@ -409,14 +458,16 @@ function locationTime(location, date, time, all_day) {
   if (!all_day) {
     formatted_string = formatted_string.concat("@ ", hour, ":", minute, " ", amPm);
   }
+  elem.face = "arial";
   elem.appendChild(document.createTextNode(formatted_string));
   return elem;
 }
 
 function eventTitle(title, series) {
   var formatted_string = "";
-  var span_element = document.createElement("span");
-  var title_element = document.createElement("p");
+  const elem = document.createElement("font");
+  var span_element = document.createElement("i");
+  var title_element = document.createElement("b");
   var t = "";
   span_element.className = "title";
   title_element.className = "event-title";
@@ -426,32 +477,37 @@ function eventTitle(title, series) {
   }
   span_element.innerHTML = title;
   title_element.appendChild(span_element);
-  return title_element;
+  elem.face = "arial";
+  elem.appendChild(title_element);
+  return elem;
 }
 
 function eventWeb(event) {
   const a = document.createElement("a");
-  const elem = document.createElement("p");
+  const elem = document.createElement("font");
   const t = document.createTextNode("more info: ");
   a.innerHTML = event.web;
   a.href = event.web;
   elem.appendChild(t);
   elem.appendChild(a);
   elem.className = "event-web";
+  elem.size = 2;
+  elem.face = "arial";
   return elem;
 }
 
 function eventSpeaker(json_obj) {
-  const elem = document.createElement("p");
+  const elem = document.createElement("font");
   const text = (json_obj.speaker) ? json_obj.speaker : "";
   const t = document.createTextNode(text);
   elem.className = "event-speaker";
+  elem.face = "arial";
   elem.appendChild(t);
   return elem;
 }
 
 function calendarLinks(event) {
-  const elem = document.createElement("p");
+  const elem = document.createElement("font");
   const event_title = event.series + ": " + event.title;
   const event_details = event.speaker + ", " + event.details;
   const arguments = [event.start_date, event.end_date, event.all_day, event.start_time, event.end_time, event.location, event_title, event_details];
@@ -465,32 +521,45 @@ function calendarLinks(event) {
   t = document.createTextNode("add to calendar: ");
   elem.appendChild(t);
   a = document.createElement("a");
-  a.setAttribute("href", encodeURI(googleString));
+  a.setAttribute("href", googleString);
   t = document.createTextNode("Google");
   a.appendChild(t);
   elem.appendChild(a);
   t = document.createTextNode(" | ");
   elem.appendChild(t);
   a = document.createElement("a");
-  a.setAttribute("href", encodeURI(yahooString));
+  a.setAttribute("href", yahooString);
   t = document.createTextNode("Yahoo!");
   a.appendChild(t);
   elem.appendChild(a);
   t = document.createTextNode(" | ");
   elem.appendChild(t);
   a = document.createElement("a");
-  a.setAttribute("href", encodeURI(outlookString));
+  a.setAttribute("href", outlookString);
   t = document.createTextNode("Outlook web");
   a.appendChild(t);
   elem.appendChild(a);
   t = document.createTextNode(" | ");
   elem.appendChild(t);
   a = document.createElement("a");
-  a.setAttribute("href", encodeURI(iCalendarString));
+  a.setAttribute("href", iCalendarString);
   t = document.createTextNode("iCalendar file");
   a.appendChild(t);
   elem.appendChild(a);
   t = document.createTextNode(" (Apple Calendar, Outlook desktop)");
+  elem.appendChild(t);
+  elem.size = 2;
+  elem.face = "arial";
+  return elem;
+}
+
+function legalese(json_obj) {
+  const elem = document.createElement("font");
+  const text = (json_obj.legalese) ? json_obj.legalese : "";
+  const t = document.createTextNode(text);
+  elem.id = "document-title";
+  elem.size = 2;
+  elem.face = "arial";
   elem.appendChild(t);
   return elem;
 }
@@ -503,9 +572,6 @@ function generateOutput() {
   // Document sections
   const rendered = document.createElement("div");
   rendered.id = "formatted";
-  const document_head = document.createElement("div");
-  document_head.id = "document-head";
-  var date_title = document.createElement("div");
 
   var num_e = 0;
   var tmp = null;
@@ -523,10 +589,16 @@ function generateOutput() {
     } else {
       return false;
     }
-    document_head.appendChild(documentTitle(json_obj));
-    document_head.appendChild(documentSubTitle(json_obj));
-    document_head.appendChild(documentBlurb(json_obj));
-    rendered.appendChild(document_head);
+    rendered.appendChild(documentTitle(json_obj));
+    rendered.appendChild(document.createElement("br"));
+    rendered.appendChild(documentSubTitle(json_obj));
+    rendered.appendChild(document.createElement("br"));
+    rendered.appendChild(document.createElement("br"));
+    rendered.appendChild(documentBlurb(json_obj));
+    rendered.appendChild(document.createElement("br"));
+    rendered.appendChild(document.createElement("br"));
+    rendered.appendChild(document.createElement("br"));
+    rendered.appendChild(document.createElement("br"));
 
     // Loop over each event
     json_obj.events.forEach(function(event) {
@@ -549,47 +621,26 @@ function generateOutput() {
         return false;
       }
 
-      // Set variables
-      var event_element = document.createElement("div");
-      var date_element = document.createElement("h4");
-      var title_element = document.createElement("p");
-      var location_element = document.createElement("p");
-      var details_element = document.createElement("p");
-      var additional_element = document.createElement("p");
-      var web_element = document.createElement("div");
-      var speaker_element = document.createElement("p");
-
-      // Start the event
-      event_element.id = "event" + i;
-      event_element.className = "event";
-
       // Underlined date
       td = new Date(dateString(event.start_date, false));
       while (td.getDate() > sd.getDate() || td.getMonth() > sd.getMonth()) {
         if (num_e == 0) {
-          date_element = document.createElement("h4");
-          date_element.innerHTML = dateTitle(sd);
-          tmp = document.createElement("p");
-          tmp.className = "no-event";
-          t = document.createTextNode("no events");
-          tmp.appendChild(t);
-          date_title = document.createElement("div");
-          date_title.className = "date-title";
-          date_title.appendChild(date_element);
-          date_title.appendChild(tmp);
-          rendered.appendChild(date_title);
+          rendered.appendChild(dateTitle(sd));
+          rendered.appendChild(document.createElement("br"));
+          rendered.appendChild(document.createElement("br"));
+          rendered.appendChild(easyFont("no events", "", 3, "arial"));
+          rendered.appendChild(document.createElement("br"));
+          rendered.appendChild(document.createElement("br"));
+          rendered.appendChild(document.createElement("br"));
         }
         sd.setDate(sd.getDate() + 1);
         num_e = 0;
       }
       if (td.getDate() == sd.getDate()) {
         if (num_e == 0) {
-          date_element = document.createElement("h4");
-          date_element.innerHTML = dateTitle(sd);
-          date_title = document.createElement("div");
-          date_title.className = "date-title";
-          date_title.appendChild(date_element);
-          rendered.appendChild(date_title);
+          rendered.appendChild(dateTitle(sd));
+          rendered.appendChild(document.createElement("br"));
+          rendered.appendChild(document.createElement("br"));
         }
         sd.setDate(sd.getDate() + 1);
         num_e = 0;
@@ -597,65 +648,75 @@ function generateOutput() {
 
       // Title of the event
       if (event.custom_section_1) {
-        event_element.appendChild(textWrap(event.custom_section_1, "p", "event-title"));
+        var bolded = document.createElement("b");
+        bolded.appendChild(easyFont(event.custom_section_1, "", 3, "arial"))
+        rendered.appendChild(bolded);
       } else {
-        event_element.appendChild(eventTitle(event.title, event.series));
+        rendered.appendChild(eventTitle(event.title, event.series));
       }
+      rendered.appendChild(document.createElement("br"));
 
       // Speaker/s
       if (event.custom_section_2) {
-        event_element.appendChild(textWrap(event.custom_section_2, "p", "event-speaker"));
+        rendered.appendChild(easyFont(event.custom_section_2, "", 3, "arial"));
+        rendered.appendChild(document.createElement("br"));
       } else if (event.speaker) {
-        event_element.appendChild(eventSpeaker(event));
+        rendered.appendChild(eventSpeaker(event));
+        rendered.appendChild(document.createElement("br"));
       }
 
       // Location and time
       if (event.custom_section_3) {
-        event_element.appendChild(textWrap(event.custom_section_3, "p", "event-location"));
+        rendered.appendChild(easyFont(event.custom_section_3, "", 3, "arial"));
+        rendered.appendChild(document.createElement("br"));
       } else {
-        event_element.appendChild(locationTime(event.location, event.start_date, event.start_time, event.all_day));
+        rendered.appendChild(locationTime(event.location, event.start_date, event.start_time, event.all_day));
+        rendered.appendChild(document.createElement("br"));
       }
 
       // Details
       if (event.custom_section_4) {
-        event_element.appendChild(textWrap(event.custom_section_4, "p", "event-details"));
+        rendered.appendChild(easyFont(event.custom_section_4, "", 3, "arial"));
+        rendered.appendChild(document.createElement("br"));
       } else if (event.details) {
-        event_element.appendChild(textWrap(event.details, "p", "event-details"));
+        rendered.appendChild(easyFont(event.details, "", 3, "arial"));
+        rendered.appendChild(document.createElement("br"));
       }
 
       // Optional additional section
       if (event.custom_section_5) {
-        event_element.appendChild(textWrap(event.custom_section_5, "p", "event-additional"));
+        rendered.appendChild(easyFont(event.custom_section_5, "", 3, "arial"));
+        rendered.appendChild(document.createElement("br"));
       }
 
       // Web URL
       if (event.web) {
-        event_element.appendChild(eventWeb(event));
+        rendered.appendChild(eventWeb(event));
+        rendered.appendChild(document.createElement("br"));
       }
 
       // Bring them altogether
-      event_element.appendChild(calendarLinks(event));
-      rendered.appendChild(event_element);
+      rendered.appendChild(calendarLinks(event));
+      rendered.appendChild(document.createElement("br"));
+      rendered.appendChild(document.createElement("br"));
+      rendered.appendChild(document.createElement("br"));
     });
     while (ed.getDate() >= sd.getDate() || ed.getMonth() > sd.getMonth()) {
       if (num_e == 0) {
-        date_element = document.createElement("h4");
-        date_element.innerHTML = dateTitle(sd);
-        rendered.appendChild(date_element);
-        tmp = document.createElement("p");
-        tmp.className = "no-event";
-        t = document.createTextNode("no events");
-        tmp.appendChild(t);
-        rendered.appendChild(tmp);
+        rendered.appendChild(dateTitle(sd));
+        rendered.appendChild(document.createElement("br"));
+        rendered.appendChild(document.createElement("br"));
+        rendered.appendChild(easyFont("no events", "", 3, "arial"));
+        rendered.appendChild(document.createElement("br"));
+        rendered.appendChild(document.createElement("br"));
+        rendered.appendChild(document.createElement("br"));
       }
       sd.setDate(sd.getDate() + 1);
       num_e = 0;
     }
-    var style_element = document.createElement("style");
-    t = document.createTextNode(current_css);
-    style_element.appendChild(t);
-    rendered.appendChild(style_element);
-    //rendered = divMeUp(rendered);
+    rendered.appendChild(document.createElement("br"));
+    rendered.appendChild(document.createElement("br"));
+    rendered.appendChild(legalese(json_obj));
     document.getElementById("formatted-output").src = "about:blank";
     document.getElementById("formatted-output").src = 'data:text/html;charset=utf-8,' + encodeURI(divMeUp(rendered).innerHTML).replace(new RegExp("#", 'g'), "%23");
   } else {
@@ -675,6 +736,12 @@ function cssEditor() {
   }
   json_editor.resize();
   css_editor.resize();
+}
+
+function printPDF() {
+  var pdf = new jsPDF();
+  pdf.text(30, 30, 'Hello world!');
+  pdf.save('this_week.pdf');
 }
 
 function initializeApp() {
@@ -739,9 +806,9 @@ function downloadICal() {
   var startDate = url.searchParams.get("startDate");
   var endDate = url.searchParams.get("endDate");
   var allDay = url.searchParams.get("allDay");
-  var location = url.searchParams.get("location");
-  var title = url.searchParams.get("title");
-  var detail = url.searchParams.get("detail");
+  var location = url.searchParams.get("location").replace(new RegExp("%26", 'g'), "&");
+  var title = url.searchParams.get("title").replace(new RegExp("%26", 'g'), "&");
+  var detail = url.searchParams.get("detail").replace(new RegExp("%26", 'g'), "&");
   text = text.concat(
     "DTSTART:",
     startDate,
